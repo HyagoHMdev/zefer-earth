@@ -33,12 +33,12 @@ export function PropertyFilters({
   onMaxPriceChange,
 }: PropertyFiltersProps) {
   const fieldClass =
-    "h-11 w-full rounded-xl border border-white/10 bg-black/25 px-3 text-sm text-white outline-none backdrop-blur-xl transition duration-300 hover:border-white/20 focus:border-[#d9b56f] focus:shadow-[0_0_0_3px_rgba(217,181,111,0.12)]";
+    "h-10 w-full rounded-xl border border-white/10 bg-black/25 px-3 text-sm text-white outline-none backdrop-blur-xl transition duration-300 hover:border-white/20 focus:border-[#d9b56f] focus:shadow-[0_0_0_3px_rgba(217,181,111,0.12)]";
   const labelClass =
     "mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#d9b56f]";
 
   return (
-    <section className="space-y-4 border-y border-white/10 py-5">
+    <section className="space-y-3 border-y border-white/10 py-4">
       <div>
         <label className={labelClass}>
           <MapPin className="h-3.5 w-3.5" />

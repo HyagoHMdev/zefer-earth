@@ -33,7 +33,7 @@ export function PropertyCard({
   isClosestToBeach = false,
   onSelect,
 }: PropertyCardProps) {
-  const imageHeight = compact ? "h-24" : "h-44";
+  const imageHeight = compact ? "h-20" : "h-36";
 
   return (
     <article
@@ -54,20 +54,20 @@ export function PropertyCard({
             style={{ backgroundImage: `url(${property.imageUrl})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-          <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-[#d9b56f]/35 bg-black/45 px-3 py-1 text-xs font-medium text-[#f3d797] backdrop-blur-md">
+          <div className="absolute bottom-2.5 left-2.5 flex items-center gap-2 rounded-full border border-[#d9b56f]/35 bg-black/45 px-2.5 py-1 text-xs font-medium text-[#f3d797] backdrop-blur-md">
             <Sparkles className="h-3.5 w-3.5" />
             {property.type}
           </div>
           {(isBestOpportunity || isClosestToBeach) && (
-            <div className="absolute right-3 top-3 flex max-w-[72%] flex-col items-end gap-2">
+            <div className="absolute right-2.5 top-2.5 flex max-w-[76%] flex-col items-end gap-1.5">
               {isBestOpportunity && (
-                <span className="flex items-center gap-1.5 rounded-full border border-[#d9b56f]/45 bg-[#d9b56f]/90 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-black shadow-[0_12px_28px_rgba(217,181,111,0.28)]">
+                <span className="flex items-center gap-1.5 rounded-full border border-[#d9b56f]/45 bg-[#d9b56f]/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-black shadow-[0_12px_28px_rgba(217,181,111,0.28)]">
                   <Gem className="h-3.5 w-3.5" />
                   Melhor oportunidade
                 </span>
               )}
               {isClosestToBeach && (
-                <span className="flex items-center gap-1.5 rounded-full border border-white/15 bg-black/60 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#f3d797] shadow-[0_12px_28px_rgba(0,0,0,0.32)] backdrop-blur-md">
+                <span className="flex items-center gap-1.5 rounded-full border border-white/15 bg-black/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#f3d797] shadow-[0_12px_28px_rgba(0,0,0,0.32)] backdrop-blur-md">
                   <Waves className="h-3.5 w-3.5" />
                   Mais próximo da praia
                 </span>
@@ -76,17 +76,17 @@ export function PropertyCard({
           )}
         </div>
 
-        <div className={compact ? "space-y-3 p-4" : "space-y-5 p-5"}>
+        <div className={compact ? "space-y-2.5 p-3" : "space-y-4 p-4"}>
           <div>
             <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#d9b56f]">
               <MapPin className="h-3.5 w-3.5" />
               {property.city} / {property.neighborhood}
             </p>
-            <h3 className="mt-2 text-base font-semibold text-white">
+            <h3 className="mt-1.5 text-base font-semibold text-white">
               {property.name}
             </h3>
             {property.tags && property.tags.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-2 flex flex-wrap gap-1.5">
                 {property.tags.slice(0, compact ? 2 : 4).map((tag) => (
                   <span
                     className="rounded-full border border-white/10 bg-white/[0.07] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/65"
@@ -99,7 +99,7 @@ export function PropertyCard({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-2.5 text-sm">
             <div>
               <p className="text-white/45">A partir de</p>
               <p className="font-semibold text-white tabular-nums">
@@ -118,7 +118,7 @@ export function PropertyCard({
           </div>
 
           {!compact && (
-            <div className="grid grid-cols-2 gap-3 border-t border-white/10 pt-4 text-sm text-white/75">
+            <div className="grid grid-cols-2 gap-2.5 border-t border-white/10 pt-3 text-sm text-white/75">
               <span className="flex items-center gap-2">
                 <Waves className="h-4 w-4 text-[#d9b56f]" />
                 {property.beachDistance}

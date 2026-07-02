@@ -205,7 +205,7 @@ export default function Home() {
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-[#030303] text-white lg:h-screen lg:flex-row">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(217,181,111,0.16),transparent_28%),radial-gradient(circle_at_82%_12%,rgba(255,255,255,0.08),transparent_20%),linear-gradient(135deg,#030303,#080808_48%,#010101)]" />
       {isSidebarOpen ? (
-        <div className="relative z-30 flex h-full w-full shrink-0 transition-all duration-300 lg:w-[410px]">
+        <div className="relative z-30 flex h-full w-full shrink-0 transition-all duration-300 lg:w-[340px]">
           <Sidebar
             properties={filteredProperties}
             selectedProperty={selectedProperty}
@@ -247,26 +247,26 @@ export default function Home() {
       )}
 
       <section className="relative flex min-h-0 flex-1 flex-col">
-        <header className="z-20 flex flex-col gap-4 border-b border-white/10 bg-black/35 px-5 py-5 shadow-[0_20px_70px_rgba(0,0,0,0.24)] backdrop-blur-2xl md:flex-row md:items-center md:justify-between lg:px-8">
+        <header className="z-20 flex flex-col gap-3 border-b border-white/10 bg-black/35 px-5 py-4 shadow-[0_20px_70px_rgba(0,0,0,0.24)] backdrop-blur-2xl md:flex-row md:items-center md:justify-between lg:px-7">
           <div>
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#d9b56f]">
               <Radar className="h-4 w-4" />
               Penha / Balneario Picarras / Porto Belo / Itapema / Navegantes
             </p>
-            <h2 className="mt-2 max-w-3xl text-2xl font-semibold text-white md:text-3xl">
+            <h2 className="mt-2 max-w-3xl text-2xl font-semibold text-white md:text-[28px]">
               Curadoria premium de empreendimentos no litoral norte
             </h2>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
-              className="flex items-center justify-center gap-2 rounded-2xl border border-[#d9b56f]/30 bg-[#d9b56f]/10 px-4 py-3 text-sm font-medium text-[#f3d797] shadow-[0_14px_35px_rgba(217,181,111,0.12)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#d9b56f]/15"
+              className="flex items-center justify-center gap-2 rounded-2xl border border-[#d9b56f]/30 bg-[#d9b56f]/10 px-3.5 py-2.5 text-sm font-medium text-[#f3d797] shadow-[0_14px_35px_rgba(217,181,111,0.12)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#d9b56f]/15"
               type="button"
               onClick={() => setComparisonOpen(true)}
             >
               <BarChart3 className="h-4 w-4" />
               Comparador ({comparisonIds.length}/3)
             </button>
-            <div className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-medium text-white/70">
+            <div className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.05] px-3.5 py-2.5 text-sm font-medium text-white/70">
               <Route className="h-4 w-4 text-[#d9b56f]" />
               {isUsingFallback ? "Fallback mockado" : "Dados Admin API"}
             </div>
@@ -288,7 +288,7 @@ export default function Home() {
           />
 
           {isDetailsOpen ? (
-          <aside className="relative z-20 border-l border-white/10 bg-white/[0.07] p-4 shadow-[-24px_0_80px_rgba(0,0,0,0.38)] backdrop-blur-2xl lg:w-[370px] lg:overflow-y-auto lg:p-5">
+          <aside className="relative z-20 border-l border-white/10 bg-white/[0.07] p-3 shadow-[-24px_0_80px_rgba(0,0,0,0.38)] backdrop-blur-2xl lg:w-[300px] lg:overflow-y-auto lg:p-4">
             <button
               className="absolute right-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-black/35 text-white/70 shadow-[0_16px_45px_rgba(0,0,0,0.35)] backdrop-blur-xl transition hover:border-[#d9b56f]/60 hover:text-[#d9b56f]"
               type="button"
@@ -317,7 +317,7 @@ export default function Home() {
                 />
 
                 <button
-                  className={`flex w-full items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition duration-300 ${
+                  className={`flex w-full items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition duration-300 ${
                     selectedIsComparing
                       ? "border-[#d9b56f]/60 bg-[#d9b56f]/15 text-[#f3d797]"
                       : comparisonLimitReached
@@ -339,7 +339,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 gap-3 text-sm">
                   {selectedProperty.detailsUrl && (
                     <Link
-                      className="flex items-center justify-center gap-2 rounded-2xl border border-[#d9b56f]/35 bg-[#d9b56f]/10 px-4 py-3 text-center font-semibold text-[#f3d797] transition duration-300 hover:-translate-y-0.5 hover:bg-[#d9b56f]/15"
+                      className="flex items-center justify-center gap-2 rounded-2xl border border-[#d9b56f]/35 bg-[#d9b56f]/10 px-3 py-2.5 text-center font-semibold text-[#f3d797] transition duration-300 hover:-translate-y-0.5 hover:bg-[#d9b56f]/15"
                       href={selectedProperty.detailsUrl}
                     >
                       <ExternalLink className="h-4 w-4" />
@@ -351,7 +351,7 @@ export default function Home() {
                     process.env.NEXT_PUBLIC_DEFAULT_WHATSAPP
                   ) ? (
                     <a
-                      className="flex items-center justify-center gap-2 rounded-2xl bg-[#d9b56f] px-4 py-3 text-center font-semibold text-black shadow-[0_18px_45px_rgba(217,181,111,0.24)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#f1cf86]"
+                      className="flex items-center justify-center gap-2 rounded-2xl bg-[#d9b56f] px-3 py-2.5 text-center font-semibold text-black shadow-[0_18px_45px_rgba(217,181,111,0.24)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#f1cf86]"
                       href={buildWhatsAppUrl(selectedProperty)}
                       target="_blank"
                       rel="noreferrer"
@@ -361,7 +361,7 @@ export default function Home() {
                     </a>
                   ) : (
                     <button
-                      className="flex cursor-not-allowed items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center font-semibold text-white/35"
+                      className="flex cursor-not-allowed items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-center font-semibold text-white/35"
                       type="button"
                       disabled
                     >
@@ -371,7 +371,7 @@ export default function Home() {
                   )}
                   {selectedProperty.pdfUrl ? (
                     <a
-                      className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-black/20 px-4 py-3 text-center font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:border-[#d9b56f] hover:text-[#d9b56f]"
+                      className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-black/20 px-3 py-2.5 text-center font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:border-[#d9b56f] hover:text-[#d9b56f]"
                       href={selectedProperty.pdfUrl}
                       target="_blank"
                       rel="noreferrer"
@@ -381,7 +381,7 @@ export default function Home() {
                     </a>
                   ) : (
                     <button
-                      className="flex cursor-not-allowed items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center font-semibold text-white/35"
+                      className="flex cursor-not-allowed items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-center font-semibold text-white/35"
                       type="button"
                       disabled
                     >
