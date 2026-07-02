@@ -8,6 +8,10 @@ import {
   FileText,
   Loader2,
   MessageCircle,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
   Plus,
   Radar,
   Route,
@@ -45,6 +49,8 @@ export default function Home() {
   const [selectedPropertyId, setSelectedPropertyId] = useState(
     fallbackProperties[0].id,
   );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(true);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
   const [comparisonOpen, setComparisonOpen] = useState(false);
 
@@ -198,26 +204,47 @@ export default function Home() {
   return (
     <main className="relative flex min-h-screen flex-col overflow-hidden bg-[#030303] text-white lg:h-screen lg:flex-row">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(217,181,111,0.16),transparent_28%),radial-gradient(circle_at_82%_12%,rgba(255,255,255,0.08),transparent_20%),linear-gradient(135deg,#030303,#080808_48%,#010101)]" />
-      <Sidebar
-        properties={filteredProperties}
-        selectedProperty={selectedProperty}
-        cities={cities}
-    types={types}
-        selectedCity={selectedCity}
-        selectedType={selectedType}
-        maxPrice={maxPrice}
-        highestPrice={highestPrice}
-        searchTerm={searchTerm}
-        sortOption={sortOption}
-        bestOpportunityId={bestOpportunityId}
-        closestToBeachId={closestToBeachId}
-        onCityChange={setSelectedCity}
-        onTypeChange={setSelectedType}
-        onMaxPriceChange={setMaxPrice}
-        onSearchTermChange={setSearchTerm}
-        onSortOptionChange={setSortOption}
-        onSelectProperty={handleSelectProperty}
-      />
+      {isSidebarOpen ? (
+        <div className="relative z-30 flex h-full w-full shrink-0 transition-all duration-300 lg:w-[410px]">
+          <Sidebar
+            properties={filteredProperties}
+            selectedProperty={selectedProperty}
+            cities={cities}
+            types={types}
+            selectedCity={selectedCity}
+            selectedType={selectedType}
+            maxPrice={maxPrice}
+            highestPrice={highestPrice}
+            searchTerm={searchTerm}
+            sortOption={sortOption}
+            bestOpportunityId={bestOpportunityId}
+            closestToBeachId={closestToBeachId}
+            onCityChange={setSelectedCity}
+            onTypeChange={setSelectedType}
+            onMaxPriceChange={setMaxPrice}
+            onSearchTermChange={setSearchTerm}
+            onSortOptionChange={setSortOption}
+            onSelectProperty={handleSelectProperty}
+          />
+          <button
+            className="absolute right-3 top-3 z-40 flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-black/35 text-white/70 shadow-[0_16px_45px_rgba(0,0,0,0.35)] backdrop-blur-xl transition hover:border-[#d9b56f]/60 hover:text-[#d9b56f]"
+            type="button"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-label="Recolher filtros e lista"
+          >
+            <PanelLeftClose className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        <button
+          className="absolute left-4 top-4 z-40 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#d9b56f]/35 bg-black/45 text-[#f3d797] shadow-[0_18px_55px_rgba(0,0,0,0.38)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-[#d9b56f]/10"
+          type="button"
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="Abrir filtros e lista"
+        >
+          <PanelLeftOpen className="h-5 w-5" />
+        </button>
+      )}
 
       <section className="relative flex min-h-0 flex-1 flex-col">
         <header className="z-20 flex flex-col gap-4 border-b border-white/10 bg-black/35 px-5 py-5 shadow-[0_20px_70px_rgba(0,0,0,0.24)] backdrop-blur-2xl md:flex-row md:items-center md:justify-between lg:px-8">
@@ -260,11 +287,20 @@ export default function Home() {
             onSelectProperty={handleSelectProperty}
           />
 
-          <aside className="z-20 border-l border-white/10 bg-white/[0.07] p-4 shadow-[-24px_0_80px_rgba(0,0,0,0.38)] backdrop-blur-2xl lg:w-[370px] lg:overflow-y-auto lg:p-5">
+          {isDetailsOpen ? (
+          <aside className="relative z-20 border-l border-white/10 bg-white/[0.07] p-4 shadow-[-24px_0_80px_rgba(0,0,0,0.38)] backdrop-blur-2xl lg:w-[370px] lg:overflow-y-auto lg:p-5">
+            <button
+              className="absolute right-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-black/35 text-white/70 shadow-[0_16px_45px_rgba(0,0,0,0.35)] backdrop-blur-xl transition hover:border-[#d9b56f]/60 hover:text-[#d9b56f]"
+              type="button"
+              onClick={() => setIsDetailsOpen(false)}
+              aria-label="Recolher detalhes"
+            >
+              <PanelRightClose className="h-4 w-4" />
+            </button>
             {selectedProperty ? (
               <div
                 key={selectedProperty.id}
-                className="zefer-detail-enter space-y-4"
+                className="zefer-detail-enter space-y-4 pt-12"
               >
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d9b56f]">
@@ -361,6 +397,16 @@ export default function Home() {
               </div>
             )}
           </aside>
+          ) : (
+            <button
+              className="absolute right-5 top-5 z-30 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#d9b56f]/35 bg-black/45 text-[#f3d797] shadow-[0_18px_55px_rgba(0,0,0,0.38)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-[#d9b56f]/10"
+              type="button"
+              onClick={() => setIsDetailsOpen(true)}
+              aria-label="Abrir detalhes"
+            >
+              <PanelRightOpen className="h-5 w-5" />
+            </button>
+          )}
         </div>
       </section>
 
