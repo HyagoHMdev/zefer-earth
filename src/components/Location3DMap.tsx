@@ -4,7 +4,9 @@ import Link from "next/link";
 import { RotateCcw, TriangleAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, Marker } from "mapbox-gl";
-import type { Property } from "@/types/property";
+import type { Property, TerrainGeometry } from "@/types/property";
+
+type Mapbox = typeof import("mapbox-gl").default;
 import type { LocationViewMode } from "@/components/Location3DSection";
 
 type Location3DMapProps = {
@@ -31,14 +33,20 @@ function cameraFor(property: Property, mode: LocationViewMode) {
   };
 }
 
-function addProjectArea(map: MapboxMap, property: Property) {
-  const sourceId = "zefer-project-area";
-  const layerFillId = "zefer-project-area-fill";
-  const layerLineId = "zefer-project-area-line";
+// Todas as posições [lng,lat] do terreno (Polygon ou MultiPolygon).
+function terrainPositions(geom: TerrainGeometry): number[][] {
+  return geom.type === "Polygon" ? geom.coordinates.flat() : geom.coordinates.flat(2);
+}
+
+// Área a desenhar: o terreno real quando existir; senão, o quadrado provisório.
+function projectFeature(property: Property) {
+  if (property.terrain) {
+    return { type: "Feature" as const, properties: {}, geometry: property.terrain };
+  }
+
   const point = [property.longitude, property.latitude];
   const delta = 0.00032;
-
-  const geometry = {
+  return {
     type: "Feature" as const,
     properties: {},
     geometry: {
@@ -52,6 +60,62 @@ function addProjectArea(map: MapboxMap, property: Property) {
       ]],
     },
   };
+}
+
+// Enquadramento da câmera considerando o terreno inteiro (quando houver).
+function frameCamera(
+  map: MapboxMap,
+  mapbox: Mapbox,
+  property: Property,
+  mode: LocationViewMode,
+  animate: boolean,
+) {
+  const base = cameraFor(property, mode);
+  let camera: ReturnType<MapboxMap["cameraForBounds"]> | null = null;
+
+  if (property.terrain) {
+    const positions = terrainPositions(property.terrain);
+    const bounds = new mapbox.LngLatBounds();
+    for (const pos of positions) {
+      if (Number.isFinite(pos[0]) && Number.isFinite(pos[1])) {
+        bounds.extend([pos[0], pos[1]]);
+      }
+    }
+    if (!bounds.isEmpty()) {
+      camera = map.cameraForBounds(bounds, {
+        padding: mode === "3d" ? 140 : 64,
+        maxZoom: 17.4,
+      });
+    }
+  }
+
+  const target = {
+    center: (camera?.center ?? base.center) as [number, number],
+    zoom:
+      typeof camera?.zoom === "number"
+        ? camera.zoom - (mode === "3d" ? 0.5 : 0.15)
+        : base.zoom,
+    pitch: base.pitch,
+    bearing: base.bearing,
+  };
+
+  if (animate) {
+    map.easeTo({
+      ...target,
+      duration: 1100,
+      easing: (time) => time * (2 - time),
+      essential: true,
+    });
+  } else {
+    map.jumpTo(target);
+  }
+}
+
+function addProjectArea(map: MapboxMap, property: Property) {
+  const sourceId = "zefer-project-area";
+  const layerFillId = "zefer-project-area-fill";
+  const layerLineId = "zefer-project-area-line";
+  const geometry = projectFeature(property);
 
   if (map.getSource(sourceId)) {
     const source = map.getSource(sourceId) as mapboxgl.GeoJSONSource;
@@ -64,6 +128,7 @@ function addProjectArea(map: MapboxMap, property: Property) {
     data: geometry,
   });
 
+  // Preenchimento dourado transparente.
   map.addLayer({
     id: layerFillId,
     type: "fill",
@@ -74,14 +139,16 @@ function addProjectArea(map: MapboxMap, property: Property) {
     },
   });
 
+  // Borda dourada (mais forte para leitura no 3D em pitch alto).
   map.addLayer({
     id: layerLineId,
     type: "line",
     source: sourceId,
+    layout: { "line-join": "round", "line-cap": "round" },
     paint: {
       "line-color": "#f3d797",
-      "line-width": 2,
-      "line-opacity": 0.85,
+      "line-width": 2.4,
+      "line-opacity": 0.9,
     },
   });
 }
@@ -191,6 +258,7 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
           addTerrain(map);
           add3DBuildings(map);
           addProjectArea(map, property);
+          frameCamera(map, mapbox, property, mode, false);
           map.resize();
           setMapReady(true);
         });
@@ -237,14 +305,12 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapReady) return;
+    const mapbox = mapboxRef.current;
+    if (!map || !mapbox || !mapReady) return;
 
-    map.easeTo({
-      ...cameraFor(property, mode),
-      duration: 1100,
-      easing: (time) => time * (2 - time),
-      essential: true,
-    });
+    // Reaplica a área (o terreno pode ter mudado ao trocar de empreendimento).
+    addProjectArea(map, property);
+    frameCamera(map, mapbox, property, mode, true);
 
     if (mode === "3d") {
       addTerrain(map);
@@ -255,11 +321,10 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
   }, [mapReady, mode, property]);
 
   function resetCamera() {
-    mapRef.current?.easeTo({
-      ...cameraFor(property, mode),
-      duration: 900,
-      essential: true,
-    });
+    const map = mapRef.current;
+    const mapbox = mapboxRef.current;
+    if (!map || !mapbox) return;
+    frameCamera(map, mapbox, property, mode, true);
   }
 
   return (

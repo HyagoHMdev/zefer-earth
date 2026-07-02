@@ -8,6 +8,12 @@ export type PropertyType =
 
 export type PropertySource = "mock" | "admin-api";
 
+// Terreno real do empreendimento (GeoJSON vindo do Admin). O Smart Map só
+// trabalha com GeoJSON; quando ausente, cai na área provisória.
+export type TerrainGeometry =
+  | { type: "Polygon"; coordinates: number[][][] }
+  | { type: "MultiPolygon"; coordinates: number[][][][] };
+
 export type AdminProjectRow = Record<string, unknown>;
 
 export type Property = {
@@ -36,5 +42,6 @@ export type Property = {
   source?: PropertySource;
   createdAt?: string;
   updatedAt?: string;
+  terrain?: TerrainGeometry | null;
   raw?: AdminProjectRow;
 };

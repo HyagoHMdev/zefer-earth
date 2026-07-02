@@ -1,5 +1,10 @@
 import { properties as fallbackProperties } from "@/data/properties";
-import type { AdminProjectRow, Property, PropertyType } from "@/types/property";
+import type {
+  AdminProjectRow,
+  Property,
+  PropertyType,
+  TerrainGeometry,
+} from "@/types/property";
 
 const PREMIUM_PLACEHOLDER_IMAGE =
   "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=900&q=80";
@@ -114,6 +119,24 @@ function getPdfUrl(row: AdminProjectRow) {
   return "";
 }
 
+// Extrai o terreno real (GeoJSON) do Admin. Só aceita Polygon/MultiPolygon
+// com coordinates; qualquer outra coisa vira null (usa área provisória).
+function getTerrain(row: AdminProjectRow): TerrainGeometry | null {
+  const value = row.terreno_geojson;
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const geom = value as { type?: unknown; coordinates?: unknown };
+  const isPolygon = geom.type === "Polygon" || geom.type === "MultiPolygon";
+
+  if (isPolygon && Array.isArray(geom.coordinates) && geom.coordinates.length > 0) {
+    return geom as TerrainGeometry;
+  }
+
+  return null;
+}
+
 function getGalleryUrls(row: AdminProjectRow) {
   const gallery = row.galeria;
 
@@ -171,6 +194,7 @@ function mapAdminProject(row: AdminProjectRow, index: number): Property {
     source: "admin-api",
     createdAt: getString(row, ["created_at", "createdAt"]),
     updatedAt: getString(row, ["updated_at", "updatedAt"]),
+    terrain: getTerrain(row),
     raw: row,
   };
 }
