@@ -117,7 +117,7 @@ select option {
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.45), 0 0 26px rgba(217, 181, 111, 0.42);
   color: #090909;
   cursor: pointer;
-  transform-origin: center;
+  transform-origin: 50% calc(100% + 14px);
   transition:
     transform 260ms ease,
     box-shadow 260ms ease,
@@ -127,7 +127,7 @@ select option {
 
 .zefer-marker::before {
   position: absolute;
-  inset: -8px;
+  inset: -7px;
   border: 1px solid rgba(217, 181, 111, 0.18);
   border-radius: inherit;
   content: "";
@@ -138,9 +138,24 @@ select option {
     transform 260ms ease;
 }
 
+.zefer-marker::after {
+  position: absolute;
+  bottom: -13px;
+  left: 50%;
+  height: 18px;
+  width: 18px;
+  border-right: 1px solid rgba(243, 215, 151, 0.72);
+  border-bottom: 1px solid rgba(243, 215, 151, 0.72);
+  background: linear-gradient(145deg, #f7df9c, #b88a36 72%);
+  box-shadow: 0 10px 24px rgba(217, 181, 111, 0.24);
+  content: "";
+  transform: translateX(-50%) rotate(45deg);
+  z-index: -1;
+}
+
 .zefer-marker:hover {
   box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5), 0 0 38px rgba(217, 181, 111, 0.72);
-  transform: translateY(-5px) scale(1.08);
+  transform: translateY(-4px) scale(1.08);
 }
 
 .zefer-marker:hover::before,

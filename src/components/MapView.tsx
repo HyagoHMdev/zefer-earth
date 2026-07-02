@@ -139,7 +139,7 @@ export function MapView({
         });
       });
 
-      const marker = new mapbox.Marker({ element: markerElement, anchor: "center" })
+      const marker = new mapbox.Marker({ element: markerElement, anchor: "bottom" })
         .setLngLat([property.longitude, property.latitude])
         .addTo(map);
 
@@ -147,7 +147,7 @@ export function MapView({
         className: "zefer-property-popup",
         closeButton: false,
         closeOnClick: false,
-        offset: selected ? 26 : 20,
+        offset: selected ? 58 : 46,
       })
         .setLngLat([property.longitude, property.latitude])
         .setHTML(`<span>${property.name}</span>`);
