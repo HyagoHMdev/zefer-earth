@@ -10,6 +10,8 @@ export type PropertySource = "mock" | "admin-api";
 
 export type AdminProjectRow = Record<string, unknown>;
 
+export type Property3DModelType = "glb" | "gltf" | "iframe" | "imagem_360" | (string & {});
+
 export type Property = {
   id: string;
   slug?: string;
@@ -32,6 +34,12 @@ export type Property = {
   headline?: string;
   description?: string;
   galleryUrls?: string[];
+  has3dModel?: boolean;
+  model3dUrl?: string;
+  model3dType?: Property3DModelType;
+  image360Url?: string;
+  tourVirtualUrl?: string;
+  threeDDescription?: string;
   detailsUrl?: string;
   source?: PropertySource;
   createdAt?: string;

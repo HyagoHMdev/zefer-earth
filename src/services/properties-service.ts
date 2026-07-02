@@ -126,6 +126,13 @@ function getGalleryUrls(row: AdminProjectRow) {
     .filter(Boolean);
 }
 
+function getModel3dType(row: AdminProjectRow) {
+  return getString(row, ["modelo_3d_tipo", "model3dType", "model_3d_type"])
+    .toLowerCase()
+    .replace("iframe/embed", "iframe")
+    .replace("imagem 360", "imagem_360");
+}
+
 function mapAdminProject(row: AdminProjectRow, index: number): Property {
   const latitude = getNumber(row, ["latitude"], NaN);
   const longitude = getNumber(row, ["longitude"], NaN);
@@ -167,6 +174,12 @@ function mapAdminProject(row: AdminProjectRow, index: number): Property {
     headline: getString(row, ["headline", "subheadline"]),
     description: getString(row, ["texto_comercial", "description"]),
     galleryUrls: getGalleryUrls(row),
+    has3dModel: getBoolean(row, ["possui_modelo_3d", "has3dModel"], false),
+    model3dUrl: getString(row, ["modelo_3d_url", "model3dUrl", "model_3d_url"]),
+    model3dType: getModel3dType(row),
+    image360Url: getString(row, ["imagem_360_url", "image360Url"]),
+    tourVirtualUrl: getString(row, ["tour_virtual", "tourVirtualUrl"]),
+    threeDDescription: getString(row, ["descricao_3d", "threeDDescription"]),
     detailsUrl: slug ? `/projetos/${slug}` : undefined,
     source: "admin-api",
     createdAt: getString(row, ["created_at", "createdAt"]),
