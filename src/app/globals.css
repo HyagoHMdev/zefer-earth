@@ -1,8 +1,11 @@
 @import "tailwindcss";
+@import "mapbox-gl/dist/mapbox-gl.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #030303;
+  --foreground: #f8f5ef;
+  --gold: #d9b56f;
+  --gold-soft: #f3d797;
 }
 
 @theme inline {
@@ -12,15 +15,201 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-feature-settings: "ss01", "cv01";
+  text-rendering: geometricPrecision;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+select option {
+  background: #0b0b0b;
+  color: #ffffff;
+}
+
+.zefer-scroll {
+  scrollbar-color: rgba(217, 181, 111, 0.38) transparent;
+  scrollbar-width: thin;
+}
+
+.zefer-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.zefer-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.zefer-scroll::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+  background-color: rgba(217, 181, 111, 0.38);
+}
+
+.zefer-scroll::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+}
+
+.zefer-range {
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), rgba(255, 255, 255, 0.16));
+  outline: none;
+}
+
+.zefer-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), rgba(255, 255, 255, 0.16));
+}
+
+.zefer-range::-webkit-slider-thumb {
+  appearance: none;
+  margin-top: -6px;
+  height: 18px;
+  width: 18px;
+  border: 2px solid #080808;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  box-shadow: 0 0 0 6px rgba(217, 181, 111, 0.14);
+}
+
+.zefer-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), rgba(255, 255, 255, 0.16));
+}
+
+.zefer-range::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border: 2px solid #080808;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  box-shadow: 0 0 0 6px rgba(217, 181, 111, 0.14);
+}
+
+.zefer-detail-enter {
+  animation: zefer-panel-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.zefer-marker {
+  position: relative;
+  display: flex;
+  height: 40px;
+  width: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(243, 215, 151, 0.92);
+  border-radius: 999px;
+  background:
+    linear-gradient(145deg, #f7df9c, #b88a36 72%),
+    #d9b56f;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.45), 0 0 26px rgba(217, 181, 111, 0.42);
+  color: #090909;
+  cursor: pointer;
+  transform-origin: center;
+  transition:
+    transform 260ms ease,
+    box-shadow 260ms ease,
+    width 260ms ease,
+    height 260ms ease;
+}
+
+.zefer-marker::before {
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(217, 181, 111, 0.18);
+  border-radius: inherit;
+  content: "";
+  opacity: 0;
+  transform: scale(0.82);
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
+}
+
+.zefer-marker:hover {
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5), 0 0 38px rgba(217, 181, 111, 0.72);
+  transform: translateY(-5px) scale(1.08);
+}
+
+.zefer-marker:hover::before,
+.zefer-marker-selected::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.zefer-marker-selected {
+  height: 54px;
+  width: 54px;
+  box-shadow:
+    0 24px 62px rgba(0, 0, 0, 0.56),
+    0 0 52px rgba(217, 181, 111, 0.9),
+    0 0 0 10px rgba(217, 181, 111, 0.12);
+}
+
+.zefer-marker-core {
+  display: block;
+  height: 13px;
+  width: 13px;
+  border-radius: 999px;
+  background: #080808;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+.zefer-marker-selected .zefer-marker-core {
+  height: 17px;
+  width: 17px;
+}
+
+.zefer-property-popup .mapboxgl-popup-content {
+  border: 1px solid rgba(217, 181, 111, 0.42);
+  border-radius: 14px;
+  background: rgba(8, 8, 8, 0.78);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  color: #f8f5ef;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  padding: 9px 12px;
+}
+
+.zefer-property-popup .mapboxgl-popup-tip {
+  border-top-color: rgba(8, 8, 8, 0.78);
+}
+
+.mapboxgl-ctrl-group {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 16px !important;
+  background: rgba(8, 8, 8, 0.62) !important;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.32) !important;
+  backdrop-filter: blur(18px);
+}
+
+.mapboxgl-ctrl button {
+  filter: invert(1) sepia(0.3) saturate(0.7);
+}
+
+@keyframes zefer-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
