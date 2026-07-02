@@ -9,7 +9,7 @@ import {
   MessageCircle,
   Waves,
 } from "lucide-react";
-import { Experience3DSection } from "@/components/Experience3DSection";
+import { Location3DSection } from "@/components/Location3DSection";
 import { getPropertyBySlug } from "@/services/properties-service";
 
 export const dynamic = "force-dynamic";
@@ -201,7 +201,7 @@ export default async function ProjectDetailPage({
             </aside>
           </div>
         </div>
-        <Experience3DSection property={property} />
+        <Location3DSection property={property} />
       </section>
     </main>
   );

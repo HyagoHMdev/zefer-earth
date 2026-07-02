@@ -214,6 +214,47 @@ select option {
   border-top-color: rgba(8, 8, 8, 0.78);
 }
 
+.zefer-location-3d-marker {
+  position: relative;
+  height: 76px;
+  width: 76px;
+}
+
+.zefer-location-3d-marker::before {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  height: 48px;
+  width: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: linear-gradient(145deg, #f7df9c, #b88a36 72%);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.55),
+    0 0 54px rgba(217, 181, 111, 0.82),
+    0 0 0 14px rgba(217, 181, 111, 0.12);
+  content: "";
+  transform: translateX(-50%);
+}
+
+.zefer-location-3d-marker::after {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: 22px;
+  width: 24px;
+  background: linear-gradient(145deg, #f7df9c, #b88a36 72%);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+  content: "";
+  filter: drop-shadow(0 0 14px rgba(217, 181, 111, 0.72));
+  transform: translateX(-50%);
+}
+
+.zefer-location-3d-marker span,
+.zefer-location-3d-marker::marker {
+  display: none;
+}
+
 .mapboxgl-ctrl-group {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
