@@ -82,10 +82,14 @@ function frameCamera(
       }
     }
     if (!bounds.isEmpty()) {
-      camera = map.cameraForBounds(bounds, {
-        padding: mode === "3d" ? 140 : 64,
-        maxZoom: 17.4,
-      });
+      // Em telas largas o card "Empreendimento destacado" cobre a esquerda do
+      // mapa — dá folga extra desse lado para o terreno não ficar escondido.
+      const wide = map.getContainer().offsetWidth >= 768;
+      const gap = mode === "3d" ? 140 : 80;
+      const padding = wide
+        ? { top: gap, right: gap, bottom: gap, left: 380 }
+        : { top: gap, right: gap, bottom: gap, left: gap };
+      camera = map.cameraForBounds(bounds, { padding, maxZoom: 17.4 });
     }
   }
 
