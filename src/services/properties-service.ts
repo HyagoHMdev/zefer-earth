@@ -137,6 +137,31 @@ function getTerrain(row: AdminProjectRow): TerrainGeometry | null {
   return null;
 }
 
+// Centro (bbox) do terreno — usado como fallback do pino quando o
+// empreendimento tem polígono mas não tem lat/lng cadastrada.
+function terrainCenter(geom: TerrainGeometry): { lat: number; lng: number } | null {
+  const positions =
+    geom.type === "Polygon" ? geom.coordinates.flat() : geom.coordinates.flat(2);
+
+  let minLng = 180;
+  let maxLng = -180;
+  let minLat = 90;
+  let maxLat = -90;
+  let n = 0;
+
+  for (const p of positions) {
+    if (Number.isFinite(p[0]) && Number.isFinite(p[1])) {
+      minLng = Math.min(minLng, p[0]);
+      maxLng = Math.max(maxLng, p[0]);
+      minLat = Math.min(minLat, p[1]);
+      maxLat = Math.max(maxLat, p[1]);
+      n++;
+    }
+  }
+
+  return n > 0 ? { lng: (minLng + maxLng) / 2, lat: (minLat + maxLat) / 2 } : null;
+}
+
 function getGalleryUrls(row: AdminProjectRow) {
   const gallery = row.galeria;
 
@@ -150,8 +175,19 @@ function getGalleryUrls(row: AdminProjectRow) {
 }
 
 function mapAdminProject(row: AdminProjectRow, index: number): Property {
-  const latitude = getNumber(row, ["latitude"], NaN);
-  const longitude = getNumber(row, ["longitude"], NaN);
+  const terrain = getTerrain(row);
+  let latitude = getNumber(row, ["latitude"], NaN);
+  let longitude = getNumber(row, ["longitude"], NaN);
+
+  // Sem pino, mas com terreno? Usa o centro do polígono para não sumir do mapa.
+  if ((!Number.isFinite(latitude) || !Number.isFinite(longitude)) && terrain) {
+    const c = terrainCenter(terrain);
+    if (c) {
+      latitude = c.lat;
+      longitude = c.lng;
+    }
+  }
+
   const slug = getString(row, ["slug"], "");
   const defaultWhatsapp = process.env.NEXT_PUBLIC_DEFAULT_WHATSAPP ?? "";
   const whatsapp = getString(row, ["whatsapp", "whatsapp_url", "whatsappUrl"]);
@@ -194,7 +230,7 @@ function mapAdminProject(row: AdminProjectRow, index: number): Property {
     source: "admin-api",
     createdAt: getString(row, ["created_at", "createdAt"]),
     updatedAt: getString(row, ["updated_at", "updatedAt"]),
-    terrain: getTerrain(row),
+    terrain,
     raw: row,
   };
 }
