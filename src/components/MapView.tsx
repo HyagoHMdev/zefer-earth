@@ -120,8 +120,8 @@ export function MapView({
         minZoom: 9,
         maxZoom: 16.5,
         maxBounds: northCoastBounds,
-        pitch: 46,
-        bearing: -12,
+        pitch: 60,
+        bearing: -14,
         style: "mapbox://styles/mapbox/dark-v11",
       });
 
