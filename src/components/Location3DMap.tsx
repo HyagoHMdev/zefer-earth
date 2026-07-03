@@ -226,6 +226,7 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
 
   useEffect(() => {
     let cancelled = false;
+    let resizeObserver: ResizeObserver | null = null;
 
     async function init() {
       if (!mapContainerRef.current || mapRef.current) return;
@@ -258,6 +259,11 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
         mapboxRef.current = mapbox;
         mapRef.current = map;
 
+        // Mantém o canvas do mapa acompanhando o tamanho do container (evita
+        // o mapa renderizar numa faixa pequena e o resto ficar preto).
+        resizeObserver = new ResizeObserver(() => map.resize());
+        resizeObserver.observe(mapContainerRef.current);
+
         map.on("load", () => {
           addTerrain(map);
           add3DBuildings(map);
@@ -281,6 +287,7 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
 
     return () => {
       cancelled = true;
+      resizeObserver?.disconnect();
       markerRef.current?.remove();
       markerRef.current = null;
       mapRef.current?.remove();
@@ -332,7 +339,7 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
   }
 
   return (
-    <div className="relative min-h-[560px] overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
+    <div className="relative h-[62vh] min-h-[560px] overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_30px_120px_rgba(0,0,0,0.55)]">
       <div ref={mapContainerRef} className="absolute inset-0 h-full w-full" />
 
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_52%_40%,rgba(217,181,111,0.08),transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.2),rgba(0,0,0,0.62))]" />
