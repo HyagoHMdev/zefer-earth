@@ -136,6 +136,13 @@ export function MapView({
 
     properties.forEach((property) => {
       const selected = selectedProperty?.id === property.id;
+
+      // Wrapper limpo: o Mapbox aplica seu position:absolute aqui. O visual
+      // (.zefer-marker) vai dentro, para que o position:relative dele não
+      // sobrescreva o do Mapbox e faça os pins empilharem fora de posição.
+      const markerRoot = document.createElement("div");
+      markerRoot.className = "zefer-marker-root";
+
       const markerElement = document.createElement("button");
       markerElement.type = "button";
       markerElement.className = `zefer-marker ${
@@ -159,7 +166,9 @@ export function MapView({
         });
       });
 
-      const marker = new mapbox.Marker({ element: markerElement, anchor: "bottom" })
+      markerRoot.appendChild(markerElement);
+
+      const marker = new mapbox.Marker({ element: markerRoot, anchor: "bottom" })
         .setLngLat([property.longitude, property.latitude])
         .addTo(map);
 
