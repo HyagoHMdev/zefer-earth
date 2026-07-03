@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Map, Marker, Popup } from "mapbox-gl";
+import type { GeoJSONSource, Map, Marker, Popup } from "mapbox-gl";
 import { Loader2, MapPinned } from "lucide-react";
 import type { Property } from "@/types/property";
 
@@ -73,6 +73,26 @@ export function MapView({
       mapRef.current = map;
       map.on("load", () => {
         map.resize();
+
+        // Área dourada do terreno real de cada empreendimento (preenchida por
+        // um efeito separado). Empreendimento sem terreno fica só com o pin.
+        map.addSource("zefer-terrains", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "zefer-terrains-fill",
+          type: "fill",
+          source: "zefer-terrains",
+          paint: { "fill-color": "#d9b56f", "fill-opacity": 0.24 },
+        });
+        map.addLayer({
+          id: "zefer-terrains-line",
+          type: "line",
+          source: "zefer-terrains",
+          paint: { "line-color": "#f3d797", "line-width": 2 },
+        });
+
         setMapReady(true);
       });
 
@@ -160,6 +180,30 @@ export function MapView({
       popupsRef.current.push(popup);
     });
   }, [mapReady, onSelectProperty, properties, selectedProperty?.id]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (!map || !mapReady) {
+      return;
+    }
+
+    const source = map.getSource("zefer-terrains") as GeoJSONSource | undefined;
+
+    if (!source) {
+      return;
+    }
+
+    const features = properties
+      .filter((property) => property.terrain)
+      .map((property) => ({
+        type: "Feature" as const,
+        properties: { id: property.id },
+        geometry: property.terrain as GeoJSON.Geometry,
+      }));
+
+    source.setData({ type: "FeatureCollection", features });
+  }, [mapReady, properties]);
 
   useEffect(() => {
     if (!selectedProperty || !mapRef.current) {
