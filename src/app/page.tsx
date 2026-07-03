@@ -5,19 +5,14 @@ import Link from "next/link";
 import {
   BarChart3,
   ExternalLink,
-  FileText,
   Loader2,
-  MessageCircle,
   PanelLeftClose,
   PanelLeftOpen,
-  PanelRightClose,
-  PanelRightOpen,
   Plus,
   Radar,
   Route,
 } from "lucide-react";
 import { CompareModal } from "@/components/CompareModal";
-import { MapView } from "@/components/MapView";
 import { PropertyCard } from "@/components/PropertyCard";
 import { Sidebar } from "@/components/Sidebar";
 import { properties as fallbackProperties } from "@/data/properties";
@@ -50,7 +45,6 @@ export default function Home() {
     fallbackProperties[0].id,
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(true);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
   const [comparisonOpen, setComparisonOpen] = useState(false);
 
@@ -160,11 +154,6 @@ export default function Home() {
     filteredProperties.find((property) => property.id === selectedPropertyId) ??
     filteredProperties[0] ??
     null;
-  const selectedIsComparing = selectedProperty
-    ? comparisonIds.includes(selectedProperty.id)
-    : false;
-  const comparisonLimitReached =
-    comparisonIds.length >= 3 && !selectedIsComparing;
 
   const comparisonProperties = useMemo(
     () =>
@@ -190,15 +179,6 @@ export default function Home() {
 
       return [...currentIds, property.id];
     });
-  };
-
-  const buildWhatsAppUrl = (property: Property) => {
-    const phone =
-      property.whatsappUrl.replace(/\D/g, "") ||
-      (process.env.NEXT_PUBLIC_DEFAULT_WHATSAPP ?? "").replace(/\D/g, "");
-    const message = `Olá, tenho interesse no empreendimento ${property.name} em ${property.city}. Gostaria de mais informações.`;
-
-    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
 
   return (
@@ -280,132 +260,66 @@ export default function Home() {
           </div>
         )}
 
-        <div className="relative flex min-h-0 flex-1 flex-col lg:flex-row">
-          <MapView
-            properties={filteredProperties}
-            selectedProperty={selectedProperty}
-            onSelectProperty={handleSelectProperty}
-          />
-
-          {isDetailsOpen ? (
-          <aside className="relative z-20 border-l border-white/10 bg-white/[0.07] p-3 shadow-[-24px_0_80px_rgba(0,0,0,0.38)] backdrop-blur-2xl lg:w-[300px] lg:overflow-y-auto lg:p-4">
-            <button
-              className="absolute right-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-black/35 text-white/70 shadow-[0_16px_45px_rgba(0,0,0,0.35)] backdrop-blur-xl transition hover:border-[#d9b56f]/60 hover:text-[#d9b56f]"
-              type="button"
-              onClick={() => setIsDetailsOpen(false)}
-              aria-label="Recolher detalhes"
-            >
-              <PanelRightClose className="h-4 w-4" />
-            </button>
-            {selectedProperty ? (
-              <div
-                key={selectedProperty.id}
-                className="zefer-detail-enter space-y-4 pt-12"
-              >
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d9b56f]">
-                    Empreendimento selecionado
-                  </p>
-                  <h2 className="mt-2 text-xl font-semibold text-white">
-                    Detalhes comerciais
-                  </h2>
-                </div>
-                <PropertyCard
-                  property={selectedProperty}
-                  isBestOpportunity={selectedProperty.id === bestOpportunityId}
-                  isClosestToBeach={selectedProperty.id === closestToBeachId}
-                />
-
-                <button
-                  className={`flex w-full items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition duration-300 ${
-                    selectedIsComparing
-                      ? "border-[#d9b56f]/60 bg-[#d9b56f]/15 text-[#f3d797]"
-                      : comparisonLimitReached
-                        ? "cursor-not-allowed border-white/10 bg-white/[0.04] text-white/35"
-                        : "border-white/15 bg-black/20 text-white hover:-translate-y-0.5 hover:border-[#d9b56f] hover:text-[#d9b56f]"
-                  }`}
-                  type="button"
-                  onClick={() => handleToggleComparison(selectedProperty)}
-                  disabled={comparisonLimitReached}
-                >
-                  <Plus className="h-4 w-4" />
-                  {selectedIsComparing
-                    ? "Remover do comparador"
-                    : comparisonLimitReached
-                      ? "Limite de 3 empreendimentos"
-                      : "Adicionar ao comparador"}
-                </button>
-
-                <div className="grid grid-cols-1 gap-3 text-sm">
-                  {selectedProperty.detailsUrl && (
-                    <Link
-                      className="flex items-center justify-center gap-2 rounded-2xl border border-[#d9b56f]/35 bg-[#d9b56f]/10 px-3 py-2.5 text-center font-semibold text-[#f3d797] transition duration-300 hover:-translate-y-0.5 hover:bg-[#d9b56f]/15"
-                      href={selectedProperty.detailsUrl}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Ver detalhes
-                    </Link>
-                  )}
-                  {(
-                    selectedProperty.whatsappUrl ||
-                    process.env.NEXT_PUBLIC_DEFAULT_WHATSAPP
-                  ) ? (
-                    <a
-                      className="flex items-center justify-center gap-2 rounded-2xl bg-[#d9b56f] px-3 py-2.5 text-center font-semibold text-black shadow-[0_18px_45px_rgba(217,181,111,0.24)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#f1cf86]"
-                      href={buildWhatsAppUrl(selectedProperty)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      Falar com especialista
-                    </a>
-                  ) : (
-                    <button
-                      className="flex cursor-not-allowed items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-center font-semibold text-white/35"
-                      type="button"
-                      disabled
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      WhatsApp indisponível
-                    </button>
-                  )}
-                  {selectedProperty.pdfUrl ? (
-                    <a
-                      className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-black/20 px-3 py-2.5 text-center font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:border-[#d9b56f] hover:text-[#d9b56f]"
-                      href={selectedProperty.pdfUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <FileText className="h-4 w-4" />
-                      Ver apresentação
-                    </a>
-                  ) : (
-                    <button
-                      className="flex cursor-not-allowed items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-center font-semibold text-white/35"
-                      type="button"
-                      disabled
-                    >
-                      <FileText className="h-4 w-4" />
-                      Apresentação indisponível
-                    </button>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-white/10 bg-black/25 p-5 text-white/70 backdrop-blur-xl">
-                Nenhum empreendimento encontrado para os filtros atuais.
-              </div>
-            )}
-          </aside>
+        <div className="relative min-h-0 flex-1 overflow-y-auto px-5 py-6 lg:px-7">
+          {filteredProperties.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-black/25 p-6 text-white/70 backdrop-blur-xl">
+              Nenhum empreendimento encontrado para os filtros atuais.
+            </div>
           ) : (
-            <button
-              className="absolute right-5 top-5 z-30 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#d9b56f]/35 bg-black/45 text-[#f3d797] shadow-[0_18px_55px_rgba(0,0,0,0.38)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-[#d9b56f]/10"
-              type="button"
-              onClick={() => setIsDetailsOpen(true)}
-              aria-label="Abrir detalhes"
-            >
-              <PanelRightOpen className="h-5 w-5" />
-            </button>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 2xl:grid-cols-3">
+              {filteredProperties.map((property) => {
+                const isComparing = comparisonIds.includes(property.id);
+                const limitReached =
+                  comparisonIds.length >= 3 && !isComparing;
+
+                return (
+                  <div key={property.id} className="flex flex-col gap-2.5">
+                    <PropertyCard
+                      property={property}
+                      isSelected={property.id === selectedPropertyId}
+                      isBestOpportunity={property.id === bestOpportunityId}
+                      isClosestToBeach={property.id === closestToBeachId}
+                      onSelect={handleSelectProperty}
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        className={`flex items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition duration-300 ${
+                          isComparing
+                            ? "border-[#d9b56f]/60 bg-[#d9b56f]/15 text-[#f3d797]"
+                            : limitReached
+                              ? "cursor-not-allowed border-white/10 bg-white/[0.04] text-white/35"
+                              : "border-white/15 bg-black/20 text-white hover:-translate-y-0.5 hover:border-[#d9b56f] hover:text-[#d9b56f]"
+                        }`}
+                        type="button"
+                        onClick={() => handleToggleComparison(property)}
+                        disabled={limitReached}
+                      >
+                        <Plus className="h-4 w-4" />
+                        {isComparing
+                          ? "No comparador"
+                          : limitReached
+                            ? "Limite de 3"
+                            : "Comparar"}
+                      </button>
+                      {property.detailsUrl ? (
+                        <Link
+                          className="flex items-center justify-center gap-2 rounded-2xl border border-[#d9b56f]/35 bg-[#d9b56f]/10 px-3 py-2.5 text-sm font-semibold text-[#f3d797] transition duration-300 hover:-translate-y-0.5 hover:bg-[#d9b56f]/15"
+                          href={property.detailsUrl}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Ver detalhes
+                        </Link>
+                      ) : (
+                        <span className="flex cursor-not-allowed items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm font-semibold text-white/35">
+                          <ExternalLink className="h-4 w-4" />
+                          Sem detalhes
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       </section>
