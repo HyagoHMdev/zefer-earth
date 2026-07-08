@@ -5,7 +5,10 @@ import Link from "next/link";
 import {
   BarChart3,
   ExternalLink,
+  List,
   Loader2,
+  Map as MapIcon,
+  MessageCircle,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
@@ -13,6 +16,8 @@ import {
   Route,
 } from "lucide-react";
 import { CompareModal } from "@/components/CompareModal";
+import { LeadCaptureModal } from "@/components/LeadCaptureModal";
+import { MapView } from "@/components/MapView";
 import { PropertyCard } from "@/components/PropertyCard";
 import { Sidebar } from "@/components/Sidebar";
 import { properties as fallbackProperties } from "@/data/properties";
@@ -47,6 +52,37 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
   const [comparisonOpen, setComparisonOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"mapa" | "lista">("mapa");
+  const [corretor, setCorretor] = useState<string | null>(null);
+  const [corretorWa, setCorretorWa] = useState<string | null>(null);
+  const [leadProperty, setLeadProperty] = useState<Property | null>(null);
+
+  // Tag do corretor via link (?c=Nome&w=NUMERO): atribui o lead e roteia o
+  // WhatsApp para o celular do corretor que compartilhou o mapa.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setCorretor(params.get("c") ?? params.get("corretor"));
+    const wa = (params.get("w") ?? "").replace(/\D/g, "");
+    setCorretorWa(wa || null);
+  }, []);
+
+  const waHref = (property: Property) => {
+    if (corretorWa) {
+      const msg = encodeURIComponent(
+        `Olá! Tenho interesse no ${property.name} (Smart Map Zefer).`,
+      );
+      return `https://wa.me/${corretorWa}?text=${msg}`;
+    }
+    return property.whatsappUrl ?? "";
+  };
+
+  const withTag = (url: string) => {
+    const params = new URLSearchParams();
+    if (corretor) params.set("c", corretor);
+    if (corretorWa) params.set("w", corretorWa);
+    const query = params.toString();
+    return query ? `${url}?${query}` : url;
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -238,6 +274,30 @@ export default function Home() {
             </h2>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex items-center rounded-2xl border border-white/10 bg-white/[0.05] p-1">
+              <button
+                type="button"
+                onClick={() => setViewMode("mapa")}
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium transition ${
+                  viewMode === "mapa"
+                    ? "bg-[#d9b56f] text-black"
+                    : "text-white/70 hover:text-white"
+                }`}
+              >
+                <MapIcon className="h-4 w-4" /> Mapa
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("lista")}
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-medium transition ${
+                  viewMode === "lista"
+                    ? "bg-[#d9b56f] text-black"
+                    : "text-white/70 hover:text-white"
+                }`}
+              >
+                <List className="h-4 w-4" /> Lista
+              </button>
+            </div>
             <button
               className="flex items-center justify-center gap-2 rounded-2xl border border-[#d9b56f]/30 bg-[#d9b56f]/10 px-3.5 py-2.5 text-sm font-medium text-[#f3d797] shadow-[0_14px_35px_rgba(217,181,111,0.12)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#d9b56f]/15"
               type="button"
@@ -250,6 +310,11 @@ export default function Home() {
               <Route className="h-4 w-4 text-[#d9b56f]" />
               {isUsingFallback ? "Fallback mockado" : "Dados Admin API"}
             </div>
+            {corretor && (
+              <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#d9b56f]/30 bg-[#d9b56f]/10 px-3.5 py-2.5 text-sm font-medium text-[#f3d797]">
+                Corretor: {corretor}
+              </div>
+            )}
           </div>
         </header>
 
@@ -260,7 +325,64 @@ export default function Home() {
           </div>
         )}
 
-        <div className="relative min-h-0 flex-1 overflow-y-auto px-5 py-6 lg:px-7">
+        {viewMode === "mapa" ? (
+          <div className="relative flex min-h-0 flex-1">
+            <MapView
+              properties={filteredProperties}
+              selectedProperty={selectedProperty}
+              onSelectProperty={handleSelectProperty}
+            />
+            {selectedProperty && (
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4">
+                <div className="pointer-events-auto mx-auto flex max-w-2xl items-center gap-3 rounded-2xl border border-white/10 bg-black/70 p-3 backdrop-blur-xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={selectedProperty.imageUrl}
+                    alt=""
+                    className="hidden h-16 w-24 shrink-0 rounded-xl object-cover sm:block"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-white">
+                      {selectedProperty.name}
+                    </p>
+                    <p className="truncate text-xs text-white/55">
+                      {selectedProperty.neighborhood} · {selectedProperty.city} ·{" "}
+                      {selectedProperty.beachDistance}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setLeadProperty(selectedProperty)}
+                      className="flex items-center gap-1.5 rounded-xl bg-[#d9b56f] px-3 py-2 text-sm font-bold text-black transition hover:bg-[#f3d797]"
+                    >
+                      <MessageCircle className="h-4 w-4" /> Tenho interesse
+                    </button>
+                    {waHref(selectedProperty) && (
+                      <a
+                        href={waHref(selectedProperty)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hidden rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm font-semibold text-white transition hover:border-[#d9b56f] hover:text-[#d9b56f] sm:inline-flex"
+                      >
+                        WhatsApp
+                      </a>
+                    )}
+                    {selectedProperty.detailsUrl && (
+                      <Link
+                        href={withTag(selectedProperty.detailsUrl)}
+                        className="hidden rounded-xl border border-[#d9b56f]/35 bg-[#d9b56f]/10 px-3 py-2 text-sm font-semibold text-[#f3d797] transition hover:bg-[#d9b56f]/15 md:inline-flex"
+                      >
+                        Detalhes
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="relative min-h-0 flex-1 overflow-y-auto px-5 py-6 lg:px-7">
           {filteredProperties.length === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-black/25 p-6 text-white/70 backdrop-blur-xl">
               Nenhum empreendimento encontrado para os filtros atuais.
@@ -304,7 +426,7 @@ export default function Home() {
                       {property.detailsUrl ? (
                         <Link
                           className="flex items-center justify-center gap-2 rounded-2xl border border-[#d9b56f]/35 bg-[#d9b56f]/10 px-3 py-2.5 text-sm font-semibold text-[#f3d797] transition duration-300 hover:-translate-y-0.5 hover:bg-[#d9b56f]/15"
-                          href={property.detailsUrl}
+                          href={withTag(property.detailsUrl)}
                         >
                           <ExternalLink className="h-4 w-4" />
                           Ver detalhes
@@ -321,7 +443,8 @@ export default function Home() {
               })}
             </div>
           )}
-        </div>
+          </div>
+        )}
       </section>
 
       {comparisonOpen && (
@@ -333,6 +456,14 @@ export default function Home() {
               currentIds.filter((id) => id !== propertyId),
             )
           }
+        />
+      )}
+
+      {leadProperty && (
+        <LeadCaptureModal
+          property={leadProperty}
+          corretor={corretor}
+          onClose={() => setLeadProperty(null)}
         />
       )}
     </main>
