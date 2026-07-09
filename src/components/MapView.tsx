@@ -17,47 +17,9 @@ const northCoastBounds: [[number, number], [number, number]] = [
   [-48.25, -26.45],
 ];
 
-// Mesmo tratamento 3D da página de detalhe: prédios extrudados dourados.
-function add3DBuildings(map: Map) {
-  if (map.getLayer("zefer-3d-buildings")) return;
-
-  const layers = map.getStyle().layers ?? [];
-  const labelLayer = layers.find(
-    (layer) =>
-      layer.type === "symbol" &&
-      typeof layer.layout?.["text-field"] !== "undefined",
-  );
-
-  map.addLayer(
-    {
-      id: "zefer-3d-buildings",
-      source: "composite",
-      "source-layer": "building",
-      filter: ["==", "extrude", "true"],
-      type: "fill-extrusion",
-      minzoom: 13,
-      paint: {
-        "fill-extrusion-color": [
-          "interpolate",
-          ["linear"],
-          ["get", "height"],
-          0,
-          "#161616",
-          80,
-          "#2a2418",
-          180,
-          "#5a4827",
-        ],
-        "fill-extrusion-height": ["coalesce", ["get", "height"], 18],
-        "fill-extrusion-base": ["coalesce", ["get", "min_height"], 0],
-        "fill-extrusion-opacity": 0.76,
-      },
-    },
-    labelLayer?.id,
-  );
-}
-
-// Relevo (DEM) + névoa/atmosfera, iguais aos do detalhe.
+// Relevo real (DEM). O estilo Mapbox Standard já traz prédios 3D com textura,
+// árvores, água e iluminação realista, então não precisamos mais extrudar
+// prédios cinza nem aplicar névoa manual.
 function addTerrain(map: Map) {
   if (!map.getSource("mapbox-dem")) {
     map.addSource("mapbox-dem", {
@@ -68,14 +30,7 @@ function addTerrain(map: Map) {
     });
   }
 
-  map.setTerrain({ source: "mapbox-dem", exaggeration: 1.25 });
-  map.setFog({
-    color: "rgb(8, 8, 8)",
-    "high-color": "rgb(217, 181, 111)",
-    "horizon-blend": 0.08,
-    "space-color": "rgb(0, 0, 0)",
-    "star-intensity": 0.05,
-  });
+  map.setTerrain({ source: "mapbox-dem", exaggeration: 1.1 });
 }
 
 export function MapView({
@@ -122,7 +77,7 @@ export function MapView({
         maxBounds: northCoastBounds,
         pitch: 60,
         bearing: -14,
-        style: "mapbox://styles/mapbox/dark-v11",
+        style: "mapbox://styles/mapbox/standard",
       });
 
       map.addControl(
@@ -135,9 +90,15 @@ export function MapView({
       map.on("load", () => {
         map.resize();
 
-        // Mesmo tratamento 3D do detalhe: relevo + prédios extrudados.
+        // Iluminação de dia (colorida e realista) do estilo Mapbox Standard.
+        try {
+          map.setConfigProperty("basemap", "lightPreset", "day");
+        } catch {
+          // estilo sem config de basemap — segue o default
+        }
+
+        // Relevo real do litoral.
         addTerrain(map);
-        add3DBuildings(map);
 
         // Área dourada do terreno real de cada empreendimento (preenchida por
         // um efeito separado). Empreendimento sem terreno fica só com o pin.
@@ -149,13 +110,15 @@ export function MapView({
           id: "zefer-terrains-fill",
           type: "fill",
           source: "zefer-terrains",
-          paint: { "fill-color": "#d9b56f", "fill-opacity": 0.24 },
+          slot: "middle",
+          paint: { "fill-color": "#d9b56f", "fill-opacity": 0.3 },
         });
         map.addLayer({
           id: "zefer-terrains-line",
           type: "line",
           source: "zefer-terrains",
-          paint: { "line-color": "#f3d797", "line-width": 2 },
+          slot: "middle",
+          paint: { "line-color": "#f3d797", "line-width": 2.4 },
         });
 
         setMapReady(true);

@@ -137,9 +137,10 @@ function addProjectArea(map: MapboxMap, property: Property) {
     id: layerFillId,
     type: "fill",
     source: sourceId,
+    slot: "middle",
     paint: {
       "fill-color": "#d9b56f",
-      "fill-opacity": 0.26,
+      "fill-opacity": 0.3,
     },
   });
 
@@ -148,6 +149,7 @@ function addProjectArea(map: MapboxMap, property: Property) {
     id: layerLineId,
     type: "line",
     source: sourceId,
+    slot: "middle",
     layout: { "line-join": "round", "line-cap": "round" },
     paint: {
       "line-color": "#f3d797",
@@ -157,45 +159,9 @@ function addProjectArea(map: MapboxMap, property: Property) {
   });
 }
 
-function add3DBuildings(map: MapboxMap) {
-  if (map.getLayer("zefer-3d-buildings")) return;
-
-  const layers = map.getStyle().layers ?? [];
-  const labelLayer = layers.find(
-    (layer) =>
-      layer.type === "symbol" &&
-      typeof layer.layout?.["text-field"] !== "undefined",
-  );
-
-  map.addLayer(
-    {
-      id: "zefer-3d-buildings",
-      source: "composite",
-      "source-layer": "building",
-      filter: ["==", "extrude", "true"],
-      type: "fill-extrusion",
-      minzoom: 13,
-      paint: {
-        "fill-extrusion-color": [
-          "interpolate",
-          ["linear"],
-          ["get", "height"],
-          0,
-          "#161616",
-          80,
-          "#2a2418",
-          180,
-          "#5a4827",
-        ],
-        "fill-extrusion-height": ["coalesce", ["get", "height"], 18],
-        "fill-extrusion-base": ["coalesce", ["get", "min_height"], 0],
-        "fill-extrusion-opacity": 0.76,
-      },
-    },
-    labelLayer?.id,
-  );
-}
-
+// O estilo Mapbox Standard já traz prédios 3D com textura, árvores e água em
+// cores reais, com iluminação de dia — então não extrudamos prédios cinza nem
+// aplicamos névoa manual. Só mantemos o relevo real (DEM).
 function addTerrain(map: MapboxMap) {
   if (!map.getSource("mapbox-dem")) {
     map.addSource("mapbox-dem", {
@@ -206,14 +172,7 @@ function addTerrain(map: MapboxMap) {
     });
   }
 
-  map.setTerrain({ source: "mapbox-dem", exaggeration: 1.25 });
-  map.setFog({
-    color: "rgb(8, 8, 8)",
-    "high-color": "rgb(217, 181, 111)",
-    "horizon-blend": 0.08,
-    "space-color": "rgb(0, 0, 0)",
-    "star-intensity": 0.05,
-  });
+  map.setTerrain({ source: "mapbox-dem", exaggeration: 1.1 });
 }
 
 export function Location3DMap({ property, mode }: Location3DMapProps) {
@@ -245,7 +204,7 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
         const map = new mapbox.Map({
           container: mapContainerRef.current,
           ...cameraFor(property, mode),
-          style: "mapbox://styles/mapbox/dark-v11",
+          style: "mapbox://styles/mapbox/standard",
           antialias: true,
           minZoom: 12,
           maxZoom: 18.5,
@@ -265,8 +224,12 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
         resizeObserver.observe(mapContainerRef.current);
 
         map.on("load", () => {
+          try {
+            map.setConfigProperty("basemap", "lightPreset", "day");
+          } catch {
+            // estilo sem config de basemap — segue o default
+          }
           addTerrain(map);
-          add3DBuildings(map);
           addProjectArea(map, property);
           frameCamera(map, mapbox, property, mode, false);
           map.resize();
@@ -325,7 +288,6 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
 
     if (mode === "3d") {
       addTerrain(map);
-      add3DBuildings(map);
     } else {
       map.setTerrain(null);
     }
