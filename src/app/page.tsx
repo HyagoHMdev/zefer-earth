@@ -52,7 +52,7 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
   const [comparisonOpen, setComparisonOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"mapa" | "lista">("mapa");
+  const [viewMode, setViewMode] = useState<"mapa" | "lista">("lista");
   const [corretor, setCorretor] = useState<string | null>(null);
   const [corretorWa, setCorretorWa] = useState<string | null>(null);
   const [leadProperty, setLeadProperty] = useState<Property | null>(null);
