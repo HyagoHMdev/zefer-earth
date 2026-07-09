@@ -77,7 +77,7 @@ export function MapView({
         maxBounds: northCoastBounds,
         pitch: 60,
         bearing: -14,
-        style: "mapbox://styles/mapbox/standard",
+        style: "mapbox://styles/mapbox/standard-satellite",
       });
 
       map.addControl(

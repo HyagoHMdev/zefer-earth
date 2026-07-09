@@ -204,7 +204,7 @@ export function Location3DMap({ property, mode }: Location3DMapProps) {
         const map = new mapbox.Map({
           container: mapContainerRef.current,
           ...cameraFor(property, mode),
-          style: "mapbox://styles/mapbox/standard",
+          style: "mapbox://styles/mapbox/standard-satellite",
           antialias: true,
           minZoom: 12,
           maxZoom: 18.5,
